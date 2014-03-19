@@ -16,6 +16,12 @@
                 fill: gray;
             }
 
+            .boundary {
+                fill: none;
+                stroke: #fff;
+                stroke-width: .5px;
+            }
+
             .business {
                 fill: turquoise;
             }
@@ -39,15 +45,23 @@
                 .attr("width", width)
                 .attr("height", height);
 
+            var map = svg.insert("g");
+            var circles = svg.insert("g");
+
             d3.json("world-50m.json", function(error, world) {
-              svg.insert("path")
+              map.insert("path")
                   .datum(topojson.feature(world, world.objects.land))
                   .attr("class", "land")
+                  .attr("d", path);
+
+              map.insert("path")
+                  .datum(topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; }))
+                  .attr("class", "boundary")
                   .attr("d", path);
             });
 
             d3.json("scientology-wise-members-2006.json", function(error, businesses) {
-              svg.selectAll("places")
+              circles.selectAll()
                 .data(businesses)
                 .enter().append("circle")
                 .filter(function(d){ return d.coordinate != undefined })
