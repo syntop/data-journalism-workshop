@@ -10,7 +10,8 @@ from geopy.exc import GeocoderServiceError
 geocoder = geocoders.GoogleV3()
 
 # Load the data from the JSON file and decode it into a list of businesses
-data = json.load(open('output.json'))
+filename = 'scientology-wise-members-2006.json'
+data = json.load(open(filename))
 
 
 try:
@@ -23,14 +24,22 @@ try:
         if business.has_key('coordinate'):
             continue
 
+        if not business.has_key('country'):
+            print business
+
         address = u'{city}, {country}'.format(**business)
         try:
             location = geocoder.geocode(address, exactly_one=True)
             if location is not None:
                 business['coordinate'] = {'latitude': location.latitude, 'longitude': location.longitude}
+            else:
+                print '---'
+                print 'No location found for:', business
+                print 'Address string was:   ', address
+                print '---'
 
         except GeocoderServiceError:
-            json.dump(data, open('output.json', 'w'), indent=2)
+            json.dump(data, open(filename, 'w'), indent=2)
             print "Failed after {0} entries.".format(i+1)
             raise
 
@@ -39,6 +48,5 @@ try:
         sleep(0.1)
 
 finally:
-    print 'Saving ...',
-    json.dump(data, open('output.json', 'w'), indent=2)
-    print 'Done.'
+    # Save the augmented data.
+    json.dump(data, open(filename, 'w'), indent=2)

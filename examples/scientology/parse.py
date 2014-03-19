@@ -2,10 +2,21 @@ import json
 import os
 import re
 from time import sleep
+import requests
 
 
-# Open the text file and read its contents
-data = open('scientology-wise-members-2006.txt').read()
+# Request the data file from WikiLeaks server
+req = requests.get('http://wlstorage.net/file/scientology-wise-members-2006.txt')
+data = req.content
+
+# Fix some typos and inconsistencies
+data = data.replace('E-Mail:\n', 'E-Mail: ')
+replacements = {
+    'Filderstodt': 'Filderstadt',
+    'Kirdiheim': 'Kirchheim',
+}
+for search,replace in replacements.iteritems():
+    data = data.replace(search, replace)
 
 # Initialize a variable where we store the sector we're currently going through
 sector = None
@@ -14,7 +25,7 @@ sector = None
 businesses = []
 
 # Split the whole data into chunks by using a double-linebreak as the separator
-chunks = re.split('\n\n', data)
+chunks = re.split('\n{2,}', data)
 
 # Go through all the chunks
 for chunk in chunks:
@@ -35,7 +46,7 @@ for chunk in chunks:
         # property, and initialize a list for lines that we cannot identify.
         business = {'sector': sector, '__unidentified__': []}
 
-        # Go through all the lines in the chunk one after another
+        # Go through all the lines in the chunke one by one
         for i, line in enumerate(lines):
 
             # The first line is always the business name. Save that and
@@ -52,7 +63,7 @@ for chunk in chunks:
             elif line.startswith('Fax '):
                 business['fax'] = line[4:]
 
-            # ... and e-mail
+            # ... and e-mail ...
             elif line.startswith('E-Mail: '):
                 business['email'] = line[9:]
 
@@ -61,6 +72,10 @@ for chunk in chunks:
                 # split the website from the e-mail address.
                 if ' www.' in business['email']:
                     business['email'], business['website'] = business['email'].split(' ', 1)
+
+            # ... and websites
+            elif line.startswith('www.'):
+                business['website'] = line
 
             # The country name is always written in capital letters. We are
             # using a regular expression to check if all letters in that line
@@ -78,8 +93,14 @@ for chunk in chunks:
         # address. So grab that and save it as the 'city' property.
         business['city'] = business['__unidentified__'].pop(-1)
 
+        # In some cases the country name is on the same line as the city. Split
+        # them apart then.
+        if not business.has_key('country'):
+            business['city'], business['country'] = business['city'].rsplit(', ')
+
         # Append the business to our list of businesses
         businesses.append(business)
 
-with open('output.json', 'w') as f:
+# Save the collected businesses in JSON format
+with open('scientology-wise-members-2006.json', 'w') as f:
     json.dump(businesses, f, indent=2)
