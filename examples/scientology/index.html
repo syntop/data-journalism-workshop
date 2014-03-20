@@ -11,12 +11,17 @@
             .boundary {
                 fill: none;
                 stroke: #fff;
-                stroke-width: .5px;
+                stroke-width: 0.5px;
             }
 
             .business {
                 fill: turquoise;
                 opacity: 0.2;
+            }
+
+            .overlay {
+                fill: none;
+                pointer-events: all;
             }
         </style>
     </head>
@@ -38,36 +43,59 @@
                 .attr("width", width)
                 .attr("height", height);
 
-            var map = svg.insert("g");
-            var circles = svg.insert("g");
+            var content = svg.insert("g").attr("class", "content");
+            var map = content.insert("g").attr("class", "map");
+            var circles = content.insert("g").attr("class", "circles");
 
             d3.json("world-50m.json", function(error, world) {
-              map.insert("path")
-                  .datum(topojson.feature(world, world.objects.land))
-                  .attr("class", "land")
-                  .attr("d", path);
+                map.insert("path")
+                    .datum(topojson.feature(world, world.objects.land))
+                    .attr("class", "land")
+                    .attr("d", path);
 
-              map.insert("path")
-                  .datum(topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; }))
-                  .attr("class", "boundary")
-                  .attr("d", path);
+                map.insert("path")
+                    .datum(topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; }))
+                    .attr("class", "boundary")
+                    .attr("d", path);
             });
 
             d3.json("scientology-wise-members-2006.json", function(error, businesses) {
-              circles.selectAll()
-                .data(businesses)
-                .enter().append("circle")
-                .filter(function(d) {
-                    return d.coordinate;
-                })
-                .attr("class", "business")
-                .attr("cy", function(d) {
-                    return projection([d.coordinate.longitude,d.coordinate.latitude])[1];
-                })
-                .attr("cx", function(d) {
-                    return projection([d.coordinate.longitude,d.coordinate.latitude])[0];
-                })
-                .attr("r", 5);
+                var zoom = d3.behavior.zoom()
+                    .scaleExtent([1, 100])
+                    .on("zoom", zoomed);
+
+                circles.selectAll()
+                    .data(businesses)
+                    .enter().append("circle")
+                    .filter(function(d) {
+                        return d.coordinate;
+                    })
+                    .attr("class", "business")
+                    .attr("cy", function(d) {
+                        return projection([d.coordinate.longitude,d.coordinate.latitude])[1];
+                    })
+                    .attr("cx", function(d) {
+                        return projection([d.coordinate.longitude,d.coordinate.latitude])[0];
+                    })
+                    .attr("r", 5);
+
+                svg.append("rect")
+                    .attr("class", "overlay")
+                    .attr("width", width)
+                    .attr("height", height)
+                    .call(zoom);
+
+                function zoomed() {
+                    content
+                        .attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+
+                    circles.selectAll(".business")
+                        .attr("r", 5 / d3.event.scale)
+                        .style("opacity", 0.2 * d3.event.scale);
+
+                    map.selectAll(".boundary")
+                        .style("stroke-width", (0.5 / d3.event.scale) + "px");
+                }
             });
 
             d3.select(self.frameElement).style("height", height + "px");
