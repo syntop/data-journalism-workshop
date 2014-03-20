@@ -28,14 +28,15 @@ try:
             print business
 
         address = u'{city}, {country}'.format(**business)
+        print u'Looking for "{name}" in {city}, {country} ...'.format(**business),
         try:
             location = geocoder.geocode(address, exactly_one=True)
             if location is not None:
                 business['coordinate'] = {'latitude': location.latitude, 'longitude': location.longitude}
+                print 'Found: {coordinate}'.format(**business)
             else:
-                print '---'
-                print 'No location found for:', business
-                print 'Address string was:   ', address
+                print 'No location found.'
+                print business
                 print '---'
 
         except GeocoderServiceError:
