@@ -17,6 +17,12 @@
 - [Google](http://www.google.com/transparencyreport/)
 - [Facebook](http://www.facebook.com/about/government_requests)
 
+
+##### Visualisierungen
+
+- [Bar Graph](http://bl.ocks.org/philippbosch/9703864)
+- [Scatter Plot](http://bl.ocks.org/philippbosch/9703892)
+
 ---
 
 ### The Global Intelligence Files `/gi-files`
@@ -29,7 +35,7 @@
 ##### Visualisierungen
 
 - [Bundle](http://bl.ocks.org/philippbosch/9702521)
-- [Matrix](...)
+- [Matrix](http://bl.ocks.org/philippbosch/9703847)
 
 ---
 
@@ -43,6 +49,7 @@
 ##### Visualisierungen
 
 - [Karte](http://bl.ocks.org/philippbosch/9697419)
+
 
 ---
 

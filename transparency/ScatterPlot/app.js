@@ -14,7 +14,7 @@ var graphheight = 650;
 var baroffsetx = 50;
 var baroffsety = 10;
 
-dsv("data/Facebook_Global_Government_Requests_2013_Jan-June.csv", function(error, data) {
+dsv("Facebook_Global_Government_Requests_2013_Jan-June.csv", function(error, data) {
 
 	var miny = d3.min(data, function(d) { return +d.Total_Requests;} );
 	var maxy = d3.max(data, function(d) { return +d.Total_Requests;} );

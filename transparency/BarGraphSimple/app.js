@@ -14,7 +14,7 @@ var baroffsetx = 150;
 var baroffsety = 10;
 var gap = 4;
 
-dsv("data/Facebook_Global_Government_Requests_2013_Jan-June.csv", function(error, data) {
+dsv("Facebook_Global_Government_Requests_2013_Jan-June.csv", function(error, data) {
 
 	var min = d3.min(data, function(d) { return +d.Total_Requests;} );
 	var max = d3.max(data, function(d) { return +d.Total_Requests;} );
