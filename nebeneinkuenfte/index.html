@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>MdB-Nebeneinkünfte</title>
+        <style>
+            .chart .name {
+                font: 12px sans-serif;
+                text-anchor: end;
+            }
+
+            .chart .summe {
+                font: 10px sans-serif;
+                fill: black;
+            }
+        </style>
+    </head>
+    <body>
+        <svg class="chart"></svg>
+        <script src="http://d3js.org/d3.v3.js"></script>
+        <script>
+            var width = 1000,
+                nameWidth = 250,
+                sumWidth = 100,
+                barHeight = 20,
+                colors = {
+                    'CDU/CSU': '#09C',
+                    'SPD': '#C00',
+                    'Die Linke': '#903',
+                    'Bündnis 90/Die Grünen': '#0B0'
+                };
+
+            d3.json("nebeneinkuenfte.json", function(error, data) {
+                data.sort(function(a,b) { return b.summe < a.summe ? -1 : b.summe > a.summe ? 1 : 0; });
+
+                var x = d3.scale.linear()
+                    .domain([0, d3.max(data, function(d) { return d.summe; })])
+                    .range([0, width-nameWidth-sumWidth]);
+
+                var chart = d3.select(".chart")
+                    .attr("width", width)
+                    .attr("height", barHeight * data.length);
+
+                var bar = chart.selectAll("g")
+                    .data(data)
+                    .enter().append("g")
+                    .attr("transform", function(d, i) { return "translate(0," + i * barHeight + ")"; });
+
+                bar.append("rect")
+                    .attr("x", 250)
+                    .attr("width", function(d) { return x(d.summe); })
+                    .attr("height", barHeight - 1)
+                    .style("fill", function(d) { return colors[d.fraktion]; });
+
+                bar.append("text")
+                    .attr("class", "summe")
+                    .attr("x", function(d) { return 260 + x(d.summe) - 3; })
+                    .attr("y", barHeight / 2)
+                    .attr("dy", ".35em")
+                    .text(function(d) { return d.summe + ' €'; });
+
+                bar.append("text")
+                    .attr("class", "name")
+                    .attr("x", 240)
+                    .attr("y", barHeight / 2)
+                    .attr("dy", ".35em")
+                    .style("fill", function(d, i) { return colors[d.fraktion]; })
+                    .text(function(d) { return d.name; });
+            });
+        </script>
+    </body>
+</html>

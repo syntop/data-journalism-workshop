@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>WISE</title>
+        <style>
+            body {
+                margin: 0;
+            }
+
+            svg {
+                display: block;
+            }
+
+            .land {
+                fill: gray;
+                pointer-events: none;
+            }
+
+            .boundary {
+                fill: none;
+                stroke: #fff;
+                stroke-width: 0.5px;
+            }
+
+            .business {
+                fill: red;
+                opacity: 0.1;
+                pointer-events: all;
+            }
+
+            .overlay {
+                fill: none;
+                pointer-events: all;
+            }
+
+            .statusbar {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: #CCC;
+                text-align: center;
+                font: 12px/2 sans-serif;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="statusbar"></div>
+        <script src="http://d3js.org/d3.v3.min.js"></script>
+        <script src="http://d3js.org/topojson.v1.min.js"></script>
+        <script>
+            var width = window.innerWidth,
+                height = window.innerHeight,
+                radius = 4;
+
+            var projection = d3.geo.mercator()
+                .scale((width + 1) / 2 / Math.PI)
+                .translate([width / 2, height / 2])
+
+            var path = d3.geo.path()
+                .projection(projection);
+
+            var svg = d3.select("body").append("svg")
+                .attr("width", width)
+                .attr("height", height);
+
+            var zoom = d3.behavior.zoom()
+                .scaleExtent([1, 100])
+                .on("zoom", zoomed);
+
+            svg.append("rect")
+                .attr("class", "overlay")
+                .attr("width", width)
+                .attr("height", height)
+                .call(zoom);
+
+            var content = svg.insert("g").attr("class", "content");
+            var map = content.insert("g").attr("class", "map");
+            var circles = content.insert("g").attr("class", "circles");
+            var statusbar = d3.select(".statusbar");
+
+            d3.json("world-50m.json", function(error, world) {
+                map.insert("path")
+                    .datum(topojson.feature(world, world.objects.land))
+                    .attr("class", "land")
+                    .attr("d", path);
+
+                map.insert("path")
+                    .datum(topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; }))
+                    .attr("class", "boundary")
+                    .attr("d", path);
+            });
+
+            d3.json("scientology-wise-members-2006.json", function(error, businesses) {
+                var sectors = businesses.reduce(function(prev, curr, i) {
+                    if (prev.indexOf(curr.sector) == -1) {
+                        prev.push(curr.sector);
+                    }
+                    return prev;
+                }, []);
+
+                circles.selectAll()
+                    .data(businesses)
+                    .enter().append("circle")
+                    .filter(function(d) {
+                        return d.coordinate;
+                    })
+                    .attr("class", "business")
+                    .attr("cy", function(d) {
+                        return projection([d.coordinate.longitude,d.coordinate.latitude])[1];
+                    })
+                    .attr("cx", function(d) {
+                        return projection([d.coordinate.longitude,d.coordinate.latitude])[0];
+                    })
+                    .attr("r", radius)
+                    .on("mouseover", function(d, i) {
+                        statusbar.html("<strong>" + d.name + "</strong> <em>" + d.sector + "</em>, " + d.city + ", " + d.country);
+                    }).on("mouseout", function() {
+                        statusbar.html("");
+                    });
+            });
+
+            function zoomed() {
+                content
+                    .attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+
+                circles.selectAll(".business")
+                    .attr("r", radius / d3.event.scale)
+                    .style("opacity", 0.1 * d3.event.scale);
+
+                map.selectAll(".boundary")
+                    .style("stroke-width", (0.5 / d3.event.scale) + "px");
+            }
+
+
+            d3.select(self.frameElement).style("height", height + "px");
+        </script>
+    </body>
+</html>

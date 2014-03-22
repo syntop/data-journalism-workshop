@@ -1,0 +1,13 @@
+path.arc {
+  cursor: move;
+  fill: #fff;
+}
+
+.node {
+  font-size: 10px;
+}
+
+.node line {
+  stroke-width: 1px;
+  stroke: rgba(128,128,128,1.0);
+}

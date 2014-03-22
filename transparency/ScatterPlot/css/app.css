@@ -1,0 +1,47 @@
+body {
+    background: white;
+    color: black;
+    font-family: sans-serif;
+    font-size: 16px;
+}
+
+svg {
+	background: white;
+}
+	
+.bar_facebook {
+	fill:#aaa;
+}
+
+.bar_facebook_percentage {
+	fill:#000;
+}
+
+.label {
+	font-family: Arial;
+	font-size  : 12px;
+	font-weight: normal;
+	text-anchor: end;
+	fill:#000;
+}
+
+.value {
+	font-family: Arial;
+	font-size  : 12px;
+	font-weight: normal;
+	text-anchor: start;
+	fill:#000;
+}
+
+.axis path,
+.axis line {
+	fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+	font-family: sans-serif;
+	font-size  : 10px;
+	font-weight: normal;
+}
