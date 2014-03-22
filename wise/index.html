@@ -66,7 +66,7 @@
                 .attr("height", height);
 
             var zoom = d3.behavior.zoom()
-                .scaleExtent([1, 100])
+                .scaleExtent([1, 5])
                 .on("zoom", zoomed);
 
             svg.append("rect")
@@ -127,10 +127,10 @@
 
                 circles.selectAll(".business")
                     .attr("r", radius / d3.event.scale)
-                    .style("opacity", 0.1 * d3.event.scale);
+                    .style("opacity", 0.1);
 
                 map.selectAll(".boundary")
-                    .style("stroke-width", (0.5 / d3.event.scale) + "px");
+                    .style("stroke-width", 0.5 + "px");
             }
 
 
